@@ -1,0 +1,174 @@
+import React, { useEffect, useState } from 'react'
+
+function GetDataProviders() {
+
+    const endPoint = 'http://localhost:8080/api/proveedores';
+
+    const [proveedores, setProveedores] = useState([]);
+    const [newProveedor, setNewProveedor] = useState('');
+    const [editProveedor, setEditProveedor] = useState({
+        nombre: '',
+        direccion: '',
+        telefono: ''
+    });
+    const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(endPoint);
+            if (response.ok) {
+                const data = await response.json();
+                setProveedores(data);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
+
+    const handleCreate = async () => {
+        try {
+            const response = await fetch(endPoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nombre: newProveedor,
+                    direccion: newProveedor,
+                    telefono: newProveedor
+                }),
+            });
+
+            if (response.ok) {
+                console.log('Proveedor creado exitosamente');
+                fetchData();
+                setNewProveedor('');
+                setCreateModalOpen(false);
+            } else {
+                console.error('Error al crear el Proveedor');
+            }
+        } catch (error) {
+            console.error('Error al procesar la solicitud de creación:', error);
+        }
+    };
+
+    const handleEdit = (proveedor) => {
+        setEditProveedor(proveedor);
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const response = await fetch(`${endPoint}/${editProveedor.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(editProveedor),
+            });
+
+            if (response.ok) {
+                console.log('Proveedor actualizado exitosamente');
+                fetchData();
+                setEditProveedor({
+                    id: null,
+                    nombre: '',
+                    direccion: '',
+                    telefono: ''
+                });
+            } else {
+                console.error('Error al actualizar el Proveedor');
+            }
+        } catch (error) {
+            console.error('Error al procesar la solicitud de actualización:', error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            const response = await fetch(`${endPoint}/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                console.log('Categoría eliminada exitosamente');
+                fetchData();
+            } else {
+                console.error('Error al eliminar la categoría');
+            }
+        } catch (error) {
+            console.error('Error al procesar la solicitud de eliminación:', error);
+        }
+    }
+
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    return (
+        <div className='container text-center mt-5'>
+            <h1>Lista de Proveedores</h1>
+            <table className="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {proveedores.map((proveedor) => (
+                        <tr key={proveedor.id_proveedor}>
+                            <td>{proveedor.id_proveedor}</td>
+                            <td>{proveedor.nombre}</td>
+                            <td>{proveedor.direccion}</td>
+                            <td>{proveedor.telefono}</td>
+                            <td>
+                                <button className='btn btn-secondary' onClick={() => handleEdit(proveedor)}>Editar</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <button onClick={() => setCreateModalOpen(true)}>Crear Proveedor</button>
+            {isCreateModalOpen && (
+                <div>
+                    <h2>Crear Nuevo Proveedor</h2>
+                    <input
+                        type="text"
+                        value={newProveedor}
+                        onChange={(e) => setNewProveedor(e.target.value)}
+                    />
+                    <button onClick={handleCreate}>Crear</button>
+                </div>
+            )}
+            {editProveedor.id && (
+                <div>
+                    <h2>Editar Proveedor</h2>
+                    <input
+                        type="text"
+                        value={editProveedor.nombre}
+                        onChange={(e) => setEditProveedor({ ...editProveedor, nombre: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        value={editProveedor.direccion}
+                        onChange={(e) => setEditProveedor({ ...editProveedor, direccion: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        value={editProveedor.telefono}
+                        onChange={(e) => setEditProveedor({ ...editProveedor, telefono: e.target.value })}
+                    />
+                    <button className='btn btn-success' onClick={handleUpdate}>Guardar</button>
+                    <button className='btn btn-danger' onClick={() => handleDelete(categoria.id_categoria)}>Eliminar</button>
+
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default GetDataProviders
