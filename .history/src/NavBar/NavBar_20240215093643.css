@@ -1,0 +1,13 @@
+.nav-link {
+    color: #FFFFFF;
+    /* Color blanco */
+}
+
+.nav-link :hover {
+    color: #FFFFFF;
+    /* Color blanco */
+}
+
+.navbar-brand {
+    color: #FFFFFF;
+}
